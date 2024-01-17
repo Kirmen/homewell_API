@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Avg
+from versatileimagefield.fields import VersatileImageField
 
 
 class Category(models.Model):
@@ -13,14 +14,32 @@ class Category(models.Model):
         verbose_name_plural = 'Categories'
 
 
-
 class Product(models.Model):
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     description = models.TextField()
-    photos = models.ImageField(upload_to='product_photos/', null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
+    def __str__(self):
+        return self.name
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=200, null=True, blank=True)
+    image = VersatileImageField(null=True, blank=True, upload_to='images')
+
+    class Meta:
+        verbose_name = "Image"
+        verbose_name_plural = "Images"
+
+    def __str__(self):
+        res = ''
+        if self.title:
+            res = self.title
+        else:
+            res = self.image.url
+        return res
 
     # rating = models.FloatField(default=0.0)
     # quantity = models.PositiveIntegerField(default=0)
@@ -50,7 +69,6 @@ class Product(models.Model):
     #         self.save()
     #         return True
     #     return False
-
 
 # class Address(models.Model):
 #     city = models.CharField(max_length=255)
