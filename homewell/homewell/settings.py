@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ad@c&8w1kdi87ow2-fhh8w&8uiqwdd2o_q_p(y8=k=37^&tdle
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'homewell.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'homewell',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
