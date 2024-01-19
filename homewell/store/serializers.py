@@ -1,3 +1,4 @@
+from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import ModelSerializer
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 
@@ -26,7 +27,10 @@ class ProductImageSerializer(ModelSerializer):
 
 
 class ProductSerializer(ModelSerializer):
-    category = CategorySerializer()
+    category = SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='name'
+    )
     images = ProductImageSerializer(source='productimage_set', many=True)
 
     class Meta:

@@ -16,11 +16,13 @@ if not settings.configured:
 
 class HomewellApiTestCase(APITestCase):
     def test_get(self):
-        category1 = Category.objects.create(name='Kitchen')
-        product1 = Product.objects.create(name='SuperTable', category=category1, description='The best table',
+        category1 = Category.objects.create(name='Kitchen', slug='kitchen')
+        product1 = Product.objects.create(name='SuperTable', slug='supertable', category=category1,
+                                          description='The best table',
                                           price=200)
-        product2 = Product.objects.create(name='SuperTable2', category=category1, description='The second table',
-                                          price=201)
+        product2 = Product.objects.create(name='SuperTable2', slug='supertable2', category=category1,
+                                          description='The second table',
+                                          price=201, quantity=10)
 
         url = reverse('product-list')
         response = self.client.get(url)
