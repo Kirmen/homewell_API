@@ -8,7 +8,7 @@ from store.models import Product, Category, ProductImage
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name']
+        fields = ['name', 'slug']
 
 
 class ProductImageSerializer(ModelSerializer):
@@ -27,10 +27,11 @@ class ProductImageSerializer(ModelSerializer):
 
 
 class ProductSerializer(ModelSerializer):
-    category = SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='name'
-    )
+    category = CategorySerializer()
+    # category = SlugRelatedField(
+    #     queryset=Category.objects.all(),
+    #     slug_field='slug'
+    # )
     images = ProductImageSerializer(source='productimage_set', many=True)
 
     class Meta:

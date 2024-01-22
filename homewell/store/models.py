@@ -93,18 +93,18 @@ class ProductImage(models.Model):
 #         return f"{self.first_name} {self.last_name}, {self.city}"
 #
 #
-# class UserRating(models.Model):
+# class UserProductRating(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)
 #     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 #     rating = models.FloatField(default=0.0)
 #
 #     def save(self, *args, **kwargs):
-#         ratings_for_product = UserRating.objects.filter(product=self.product)
+#         ratings_for_product = UserProductRating.objects.filter(product=self.product)
 #         total_rating = sum([rating.rating for rating in ratings_for_product])
 #         self.product.rating = total_rating / max(len(ratings_for_product), 1)
 #         self.product.save()
 #
-#         super(UserRating, self).save(*args, **kwargs)
+#         super(UserProductRating, self).save(*args, **kwargs)
 #
 #
 # class UserProfile(models.Model):

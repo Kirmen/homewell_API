@@ -20,7 +20,7 @@ class ProductSerializerTestCase(TestCase):
         expected_data = [
             {
                 'id': product1.id,
-                'category': 'Kitchen',
+                'category': {"name": "Kitchen", "slug": "kitchen"},
                 'images': [],
                 'name': 'SuperTable',
                 "slug": "supertable",
@@ -32,7 +32,7 @@ class ProductSerializerTestCase(TestCase):
             },
             {
                 'id': product2.id,
-                'category': 'Kitchen',
+                'category': {"name": "Kitchen", "slug": "kitchen"},
                 'images': [],
                 'name': 'SuperTable2',
                 "slug": "supertable2",
