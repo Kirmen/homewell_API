@@ -1,0 +1,5 @@
+/homewell/conf.config
+/venv/
+/homewell/store/migrations/
+/homewell/__sized__/
+/homewell/templates/

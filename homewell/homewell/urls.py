@@ -17,16 +17,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path, include
 from rest_framework.routers import SimpleRouter
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
-from store.views import ProductViewSet
+from store.views import ProductViewSet, logout_view, UserProductRelationViewSet
 
 router = SimpleRouter()
 
 router.register(r'product', ProductViewSet)
+router.register(r'product_relation', UserProductRelationViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path('', include('social_django.urls', namespace='social')),
+    path('logout/', logout_view, name='logout'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 urlpatterns += router.urls
+
+
+#http://127.0.0.1:8000/login/google-oauth2/

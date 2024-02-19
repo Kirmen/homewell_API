@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Avg
 from versatileimagefield.fields import VersatileImageField
 
 
@@ -23,14 +22,17 @@ class Product(models.Model):
     slug = models.SlugField(max_length=50,
                             verbose_name='Url',
                             unique=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='product')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE,
+                                 related_name='product')  # on_delete=models.SET_NULL
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, null=True)
     quantity = models.PositiveIntegerField(default=0)
+    favorites_by = models.ManyToManyField(User, through='UserProductRelation',
+                                          related_name='favorite_products')  # on_delete=models.CASCADE
 
     def __str__(self):
-        return self.name
+        return self.slug
 
 
 class ProductImage(models.Model):
@@ -50,32 +52,35 @@ class ProductImage(models.Model):
             res = self.image.url
         return res
 
+
+class UserProductRelation(models.Model):
+    RATE_CHOICES = (
+        (1, 'OK'),
+        (2, 'Fine'),
+        (3, 'Good'),
+        (4, 'Amazing'),
+        (5, 'Super'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    rate = models.PositiveSmallIntegerField(choices=RATE_CHOICES, null=True)
+    in_favorites = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.username}, product: {self.product.name}, rate: {self.rate}'
+
+    # def __init__(self, *args, **kwargs):
+    #     super(UserProductRelation, self).__init__(*args, **kwargs)
+    #     self.old_rate = self.rate
     #
-    # def update_rating(self, new_rating, rating_id=None):
-    #     if 1 <= new_rating <= 5:
-    #         ratings_aggregate = UserRating.objects.filter(product=self).aggregate(
-    #             total_rating=Avg('rating'),
-    #             total_ratings=models.Count('rating')
-    #         )
+    # def save(self, *args, **kwargs):
+    #     creating = not self.pk
     #
-    #         total_rating = ratings_aggregate['total_rating'] or 0.0
-    #         total_ratings = ratings_aggregate['total_ratings'] or 1
-    #
-    #         if rating_id:
-    #             old_rating = UserRating.objects.get(id=rating_id).rating
-    #             total_rating -= old_rating
-    #
-    #         self.rating = total_rating / total_ratings
-    #         self.save()
-    #     else:
-    #         raise ValueError("Рейтинг повинен бути від 1 до 5.")
-    #
-    # def update_quantity(self, quantity_to_reduce):
-    #     if self.quantity >= quantity_to_reduce:
-    #         self.quantity -= quantity_to_reduce
-    #         self.save()
-    #         return True
-    #     return False
+    #     super().save(*args, **kwargs)
+
+    # if self.old_rate != self.rate or creating:
+    #     # from store.logic import set_rating
+    #     # set_rating(self.product)
 
 # class Address(models.Model):
 #     city = models.CharField(max_length=255)
@@ -93,30 +98,18 @@ class ProductImage(models.Model):
 #         return f"{self.first_name} {self.last_name}, {self.city}"
 #
 #
-# class UserProductRating(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-#     rating = models.FloatField(default=0.0)
-#
-#     def save(self, *args, **kwargs):
-#         ratings_for_product = UserProductRating.objects.filter(product=self.product)
-#         total_rating = sum([rating.rating for rating in ratings_for_product])
-#         self.product.rating = total_rating / max(len(ratings_for_product), 1)
-#         self.product.save()
-#
-#         super(UserProductRating, self).save(*args, **kwargs)
-#
-#
 # class UserProfile(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE)
 #     email = models.EmailField(unique=True)
 #     first_name = models.CharField(max_length=255)
 #     last_name = models.CharField(max_length=255)
 #     addresses = models.ManyToManyField(Address, related_name='user_addresses', blank=True)
-#     favorites = models.ManyToManyField(Product, related_name='favorited_by', blank=True)
 #     orders = models.ManyToManyField('Order', related_name='customer_orders', blank=True)
+
+#     def get_favorite_products(self):
+#           return self.user_product_relations.filter(favorites=True)
 #
-#
+
 # class OrderItem(models.Model):
 #     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 #     quantity = models.PositiveIntegerField(default=1)

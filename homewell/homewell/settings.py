@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from config_parser import SOCIAL_AUTH_GOOGLE_OAUTH2_KEY1, SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET1
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,8 +39,6 @@ INSTALLED_APPS = [
 
     'social_django',
     'versatileimagefield',
-    # 'rest_framework',
-    # 'django_filters',
 
     'store',
 ]
@@ -59,7 +58,7 @@ ROOT_URLCONF = 'homewell.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,9 +127,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_FILTER_BACKENDS': (
-    #     'django_filters.rest_framework.DjangoFilterBackend',
-    # ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
@@ -138,10 +134,26 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     )
 }
+    #
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # )  проблема з тестуванням
+
+
 
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.google.GoogleOAuth',
     'django.contrib.auth.backends.ModelBackend')
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = SOCIAL_AUTH_GOOGLE_OAUTH2_KEY1
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET1
+
+SOCIAL_AUTH_DISCONNECT_PIPELINE = (
+    'social_core.pipeline.disconnect.allowed_to_disconnect',
+    'social_core.pipeline.disconnect.disconnect',
+)
+
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/product'
