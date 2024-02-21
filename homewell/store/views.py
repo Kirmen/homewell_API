@@ -1,4 +1,5 @@
 from django.contrib.auth import logout
+from django.db.models import Count, Case, When, Avg
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -22,13 +23,16 @@ class ProductFilter(FilterSet):
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().annotate(
+        in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
+        rating_ann=Avg('userproductrelation__rate')
+    )
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     permission_classes = [IsStaffOrReadOnly]
     search_fields = ['name']
-    ordering_fields = ['price', 'rating']
+    ordering_fields = ['price', 'rating_ann']
     lookup_field = 'slug'
 
 

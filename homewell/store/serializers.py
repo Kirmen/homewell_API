@@ -1,5 +1,5 @@
 from rest_framework.relations import SlugRelatedField
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 
 from store.models import Product, Category, ProductImage, UserProductRelation
@@ -11,7 +11,7 @@ from store.models import Product, Category, ProductImage, UserProductRelation
 #         fields = ['name', 'slug']
 
 
-class ProductImageSerializer(ModelSerializer):
+class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = '__all__'
@@ -26,7 +26,10 @@ class ProductImageSerializer(ModelSerializer):
     )
 
 
-class ProductSerializer(ModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
+    in_favorite_ann = serializers.IntegerField(read_only=True)
+    rating_ann = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
+
     category = SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
@@ -36,7 +39,9 @@ class ProductSerializer(ModelSerializer):
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = (
+            'id', 'name', 'slug', 'category', 'description', 'price', 'rating_ann', 'images', 'quantity',
+            'in_favorite_ann')
 
     def create(self, validated_data):
         images_data = validated_data.pop('productimage_set', [])
@@ -65,7 +70,7 @@ class ProductSerializer(ModelSerializer):
         return instance
 
 
-class UserProductRelationSerializer(ModelSerializer):
+class UserProductRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProductRelation
         fields = ('product', 'rate', 'in_favorites')
