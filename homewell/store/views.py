@@ -26,7 +26,7 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all().annotate(
         in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
         rating_ann=Avg('userproductrelation__rate')
-    )
+    ).select_related('category').prefetch_related('images')
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter

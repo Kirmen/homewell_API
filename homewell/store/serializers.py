@@ -34,17 +34,17 @@ class ProductSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(),
         slug_field='slug'
     )
-    # category = CategorySerializer()
-    images = ProductImageSerializer(source='productimage_set', many=True)
+    # category = CategorySerializer()  щоб одразу давати всі данні про категорію
+    images = ProductImageSerializer(many=True)
 
     class Meta:
         model = Product
         fields = (
             'id', 'name', 'slug', 'category', 'description', 'price', 'rating_ann', 'images', 'quantity',
-            'in_favorite_ann')
+            'in_favorite_ann')  # , 'favorites_by'
 
     def create(self, validated_data):
-        images_data = validated_data.pop('productimage_set', [])
+        images_data = validated_data.pop('images', [])
         product = Product.objects.create(**validated_data)
 
         for image_data in images_data:
@@ -59,7 +59,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
         instance.category = validated_data.get('category', instance.category)
 
-        images_data = validated_data.pop('productimage_set', [])
+        images_data = validated_data.pop('images', [])
         for image_data in images_data:
             image_instance = instance.productimage_set.get(id=image_data.get('id', None))
             image_instance.image = image_data.get('image', image_instance.image)

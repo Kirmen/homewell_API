@@ -22,8 +22,8 @@ class Product(models.Model):
     slug = models.SlugField(max_length=50,
                             verbose_name='Url',
                             unique=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE,
-                                 related_name='product')  # on_delete=models.SET_NULL
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL,
+                                 related_name='product', null=True)  # on_delete=models.CASCADE
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, null=True)
@@ -36,9 +36,9 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True, related_name='images')
     title = models.CharField(max_length=200, null=True, blank=True)
-    image = VersatileImageField(null=True, blank=True, upload_to=f'images/{product.name}')
+    image = VersatileImageField(null=True, blank=True, upload_to=f'images/')
 
     class Meta:
         verbose_name = "Image"

@@ -4,10 +4,12 @@ import os
 import django
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import connection
 from django.db.models import Count, Case, When, Avg
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from django.test.utils import CaptureQueriesContext
 
 from store.models import Product, Category, UserProductRelation
 from store.serializers import ProductSerializer
@@ -45,6 +47,22 @@ class HomewellApiTestCase(APITestCase):
                                                description='The best sofa',
                                                price=202, quantity=15)
 
+    def test_check_annotate(self):
+        products = Product.objects.all().annotate(
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
+            rating_ann=Avg('userproductrelation__rate')
+        ).order_by('id')
+
+        serializer_data = ProductSerializer(products, many=True).data
+        self.assertEqual(serializer_data[0]['rating_ann'], '5.00')
+        self.assertEqual(serializer_data[0]['in_favorite_ann'], 1)
+
+    def test_check_related_and_prefetch(self):
+        url = reverse('product-list')
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(url)
+            self.assertEqual(2, len(queries))
+
     def test_get(self):
         url = reverse('product-list')
         response = self.client.get(url)
@@ -58,16 +76,6 @@ class HomewellApiTestCase(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
 
-    def test_check(self):
-        products = Product.objects.all().annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
-        ).order_by('id')
-
-        serializer_data = ProductSerializer(products, many=True).data
-        self.assertEqual(serializer_data[0]['rating_ann'], '5.00')
-        self.assertEqual(serializer_data[0]['in_favorite_ann'], 1)
-
     def test_get_price_filter(self):
         url = reverse('product-list')
         response = self.client.get(url, data={'min_price': 200, 'max_price': 201})
@@ -75,8 +83,7 @@ class HomewellApiTestCase(APITestCase):
         products = Product.objects.filter(id__in=[self.product1.id, self.product2.id]).annotate(
             in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
             rating_ann=Avg('userproductrelation__rate')
-        )
-
+        ).order_by('id')
         serializer_data = ProductSerializer(products, many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)

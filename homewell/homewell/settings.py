@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'debug_toolbar',
     'social_django',
     'versatileimagefield',
 
@@ -51,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar_force.middleware.ForceDebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'homewell.urls'
@@ -134,12 +137,11 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
     )
 }
-    #
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # )  проблема з тестуванням
-
+#
+# 'DEFAULT_AUTHENTICATION_CLASSES': (
+#
+#     'rest_framework_simplejwt.authentication.JWTAuthentication',
+# )  проблема з тестуванням
 
 
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
@@ -157,3 +159,7 @@ SOCIAL_AUTH_DISCONNECT_PIPELINE = (
 )
 
 LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000/product'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
