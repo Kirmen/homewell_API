@@ -24,15 +24,14 @@ class ProductFilter(FilterSet):
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all().annotate(
-        in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-        rating_ann=Avg('userproductrelation__rate')
-    ).select_related('category').prefetch_related('images')
+        in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
+    ).select_related('category').prefetch_related('images')  #,rating_ann=Avg('userproductrelation__rate')
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     permission_classes = [IsStaffOrReadOnly]
     search_fields = ['name']
-    ordering_fields = ['price', 'rating_ann']
+    ordering_fields = ['price', 'rating']
     lookup_field = 'slug'
 
 

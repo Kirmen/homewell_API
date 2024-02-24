@@ -54,7 +54,6 @@ class HomewellApiTestCase(APITestCase):
         ).order_by('id')
 
         serializer_data = ProductSerializer(products, many=True).data
-        self.assertEqual(serializer_data[0]['rating_ann'], '5.00')
         self.assertEqual(serializer_data[0]['in_favorite_ann'], 1)
 
     def test_check_related_and_prefetch(self):
@@ -68,11 +67,12 @@ class HomewellApiTestCase(APITestCase):
         response = self.client.get(url)
 
         products = Product.objects.all().annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
         )
-
+        print(response.data)
         serializer_data = ProductSerializer(products, many=True).data
+        print(serializer_data)
+
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
 
@@ -81,8 +81,7 @@ class HomewellApiTestCase(APITestCase):
         response = self.client.get(url, data={'min_price': 200, 'max_price': 201})
 
         products = Product.objects.filter(id__in=[self.product1.id, self.product2.id]).annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
         ).order_by('id')
         serializer_data = ProductSerializer(products, many=True).data
         self.assertEqual(status.HTTP_200_OK, response.status_code)
@@ -93,8 +92,7 @@ class HomewellApiTestCase(APITestCase):
         response = self.client.get(url, data={'category': 'living-room'})
 
         product = Product.objects.filter(id__in=[self.product3.id]).annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
         )
 
         serializer_data = ProductSerializer(product, many=True).data
@@ -105,8 +103,7 @@ class HomewellApiTestCase(APITestCase):
         url = reverse('product-list')
         response = self.client.get(url, data={'search': 'super sofa'})
         product = Product.objects.filter(id__in=[self.product3.id]).annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
         )
 
         serializer_data = ProductSerializer(product, many=True).data
@@ -117,8 +114,7 @@ class HomewellApiTestCase(APITestCase):
         url = reverse('product-list')
         response = self.client.get(url, data={'ordering': '-price'})
         products = Product.objects.all().annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
         ).order_by('-price')
 
         serializer_data = ProductSerializer(products, many=True).data

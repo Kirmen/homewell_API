@@ -23,13 +23,13 @@ class Product(models.Model):
                             verbose_name='Url',
                             unique=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,
-                                 related_name='product', null=True)  # on_delete=models.CASCADE
+                                 related_name='product', null=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0, null=True)
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=None, null=True)
     quantity = models.PositiveIntegerField(default=0)
     favorites_by = models.ManyToManyField(User, through='UserProductRelation',
-                                          related_name='favorite_products')  # on_delete=models.CASCADE
+                                          related_name='favorite_products')
 
     def __str__(self):
         return self.slug
@@ -68,6 +68,18 @@ class UserProductRelation(models.Model):
 
     def __str__(self):
         return f'{self.user.username}, product: {self.product.name}, rate: {self.rate}'
+
+    def save(self, *args, **kwargs):
+        from store.logic_operations import set_rating
+
+        creating = not self.pk
+        old_rating = self.rate
+
+        super().save(*args, **kwargs)
+
+        new_rating = self.rate
+        if old_rating != new_rating or creating:
+            set_rating(self.product)
 
     # def __init__(self, *args, **kwargs):
     #     super(UserProductRelation, self).__init__(*args, **kwargs)

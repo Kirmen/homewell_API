@@ -28,7 +28,6 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     in_favorite_ann = serializers.IntegerField(read_only=True)
-    rating_ann = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
 
     category = SlugRelatedField(
         queryset=Category.objects.all(),
@@ -40,7 +39,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = (
-            'id', 'name', 'slug', 'category', 'description', 'price', 'rating_ann', 'images', 'quantity',
+            'id', 'name', 'slug', 'category', 'description', 'price', 'rating', 'images', 'quantity',
             'in_favorite_ann')  # , 'favorites_by'
 
     def create(self, validated_data):

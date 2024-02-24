@@ -33,11 +33,12 @@ class ProductSerializerTestCase(TestCase):
 
         UserProductRelation.objects.create(user=user1, product=product2, in_favorites=True, rate=5)
         UserProductRelation.objects.create(user=user2, product=product2, in_favorites=True, rate=3)
-        UserProductRelation.objects.create(user=user3, product=product2, in_favorites=False, rate=4)
+        user_product3 = UserProductRelation.objects.create(user=user3, product=product2, in_favorites=False)
+        user_product3.rate = 4
+        user_product3.save()
 
         products = Product.objects.all().annotate(
-            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1))),
-            rating_ann=Avg('userproductrelation__rate')
+            in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
         ).order_by('id')
 
         data = ProductSerializer(products, many=True).data
@@ -49,7 +50,7 @@ class ProductSerializerTestCase(TestCase):
                 'category': "kitchen",
                 'description': 'The best table',
                 'price': '200.00',
-                'rating_ann': '4.50',
+                'rating': '4.50',
                 'images': [],
                 "quantity": 0,
                 'in_favorite_ann': 3
@@ -62,7 +63,7 @@ class ProductSerializerTestCase(TestCase):
                 'category': "kitchen",
                 'description': 'The second table',
                 'price': '201.00',
-                'rating_ann': '4.00',
+                'rating': '4.00',
                 'images': [],
                 "quantity": 10,
                 'in_favorite_ann': 2
