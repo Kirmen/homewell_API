@@ -94,6 +94,7 @@ class UserProductRelation(models.Model):
     #     # from store.logic import set_rating
     #     # set_rating(self.product)
 
+
 # class Address(models.Model):
 #     city = models.CharField(max_length=255)
 #     carrier_choices = [
@@ -110,18 +111,11 @@ class UserProductRelation(models.Model):
 #         return f"{self.first_name} {self.last_name}, {self.city}"
 #
 #
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     email = models.EmailField(unique=True)
-#     first_name = models.CharField(max_length=255)
-#     last_name = models.CharField(max_length=255)
-#     addresses = models.ManyToManyField(Address, related_name='user_addresses', blank=True)
-#     orders = models.ManyToManyField('Order', related_name='customer_orders', blank=True)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-#     def get_favorite_products(self):
-#           return self.user_product_relations.filter(favorites=True)
-#
-
+    def __str__(self):
+        return self.user.username
 # class OrderItem(models.Model):
 #     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 #     quantity = models.PositiveIntegerField(default=1)

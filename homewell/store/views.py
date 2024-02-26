@@ -7,9 +7,9 @@ from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from store.models import Product, UserProductRelation
+from store.models import Product, UserProductRelation, UserProfile
 from store.permissions import IsStaffOrReadOnly
-from store.serializers import ProductSerializer, UserProductRelationSerializer
+from store.serializers import ProductSerializer, UserProductRelationSerializer, UserProfileSerializer
 
 
 class ProductFilter(FilterSet):
@@ -25,7 +25,7 @@ class ProductFilter(FilterSet):
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all().annotate(
         in_favorite_ann=Count(Case(When(userproductrelation__in_favorites=True, then=1)))
-    ).select_related('category').prefetch_related('images')  #,rating_ann=Avg('userproductrelation__rate')
+    ).select_related('category').prefetch_related('images')  # ,rating_ann=Avg('userproductrelation__rate')
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
@@ -54,3 +54,8 @@ def google_auth(request):
 
 def logout_view(request):
     logout(request)
+
+
+class UserProfileViewSet(ModelViewSet):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer

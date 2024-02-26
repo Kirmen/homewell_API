@@ -22,12 +22,13 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from store.views import ProductViewSet, logout_view, UserProductRelationViewSet
+from store.views import ProductViewSet, logout_view, UserProductRelationViewSet, UserProfileViewSet
 
 router = SimpleRouter()
 
 router.register(r'product', ProductViewSet)
-router.register(r'product_relation', UserProductRelationViewSet)
+router.register(r'product_relation', UserProductRelationViewSet),
+router.register(r'user-profile', UserProfileViewSet, basename='user-profile')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

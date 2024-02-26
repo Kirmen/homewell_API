@@ -1,8 +1,9 @@
+from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import SlugRelatedField
 from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 
-from store.models import Product, Category, ProductImage, UserProductRelation
+from store.models import Product, Category, ProductImage, UserProductRelation, UserProfile
 
 
 # class CategorySerializer(ModelSerializer):
@@ -73,3 +74,19 @@ class UserProductRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProductRelation
         fields = ('product', 'rate', 'in_favorites')
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    fav_prod = SerializerMethodField()
+
+    class Meta:
+        model = UserProfile
+        fields = ('user', 'fav_prod')
+
+    def get_fav_prod(self, instance):
+        user = instance.user
+        favorite_products = Product.objects.filter(userproductrelation__user=user,
+                                                   userproductrelation__in_favorites=True)
+        serialized_favorite_products = ProductSerializer(favorite_products,
+                                                         many=True).data  # треба спец серіалізатор для продуктів, бо багато інфи
+        return serialized_favorite_products
