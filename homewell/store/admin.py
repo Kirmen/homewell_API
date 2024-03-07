@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Category, ProductImage, UserProductRelation, UserProfile
+from .models import Product, Category, ProductImage, UserProductRelation, UserProfile, Order, OrderItem, Address
 
 
 @admin.register(Category)
@@ -23,3 +23,6 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(ProductImage)
 admin.site.register(UserProductRelation)
 admin.site.register(UserProfile)
+admin.site.register(Order)
+admin.site.register(OrderItem)
+admin.site.register(Address)

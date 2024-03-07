@@ -4,12 +4,13 @@ from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from store.models import Product, UserProductRelation, UserProfile
-from store.permissions import IsStaffOrReadOnly
-from store.serializers import ProductSerializer, UserProductRelationSerializer, UserProfileSerializer
+from store.models import Product, UserProductRelation, UserProfile, Address, Order, OrderItem
+from store.permissions import IsStaffOrReadOnly, IsDataOwnerUser, IsAdminOrStaffUser
+from store.serializers import ProductSerializer, UserProductRelationSerializer, UserProfileSerializer, OrderSerializer, \
+    AddressSerializer, OrderItemSerializer
 
 
 class ProductFilter(FilterSet):
@@ -59,3 +60,28 @@ def logout_view(request):
 class UserProfileViewSet(ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated, IsDataOwnerUser]
+    lookup_field = 'user__id'
+
+    def get_permissions(self):
+        if self.action == 'list':
+            return [IsAuthenticated(), IsAdminOrStaffUser()]
+        return super().get_permissions()
+
+
+class AddressViewSet(ModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+
+
+class OrderItemViewSet(ModelViewSet):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()

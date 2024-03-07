@@ -22,13 +22,14 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from store.views import ProductViewSet, logout_view, UserProductRelationViewSet, UserProfileViewSet
+from store.views import ProductViewSet, logout_view, UserProductRelationViewSet, UserProfileViewSet, OrderViewSet
 
 router = SimpleRouter()
 
 router.register(r'product', ProductViewSet)
 router.register(r'product_relation', UserProductRelationViewSet),
 router.register(r'user-profile', UserProfileViewSet, basename='user-profile')
+router.register(r'order', OrderViewSet, basename='order')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,6 +38,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("__debug__/", include("debug_toolbar.urls")),
+    # path('create_order/', OrderCreateView.as_view(), name='create_order'),
 ]
 
 urlpatterns += router.urls

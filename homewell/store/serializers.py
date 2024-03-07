@@ -3,7 +3,7 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework import serializers
 from versatileimagefield.serializers import VersatileImageFieldSerializer
 
-from store.models import Product, Category, ProductImage, UserProductRelation, UserProfile
+from store.models import Product, Category, ProductImage, UserProductRelation, UserProfile, Address, OrderItem, Order
 
 
 # class CategorySerializer(ModelSerializer):
@@ -76,12 +76,20 @@ class UserProductRelationSerializer(serializers.ModelSerializer):
         fields = ('product', 'rate', 'in_favorites')
 
 
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     fav_prod = SerializerMethodField()
+    # orders = OrderSerializer(many=True)
+    addresses = AddressSerializer(many=True)
 
     class Meta:
         model = UserProfile
-        fields = ('user', 'fav_prod')
+        fields = ('user', 'fav_prod', 'orders', 'addresses')
 
     def get_fav_prod(self, instance):
         user = instance.user
@@ -90,3 +98,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
         serialized_favorite_products = ProductSerializer(favorite_products,
                                                          many=True).data  # треба спец серіалізатор для продуктів, бо багато інфи
         return serialized_favorite_products
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Product.objects.all()
+    )
+    total_price = serializers.ReadOnlyField()
+
+    class Meta:
+        model = OrderItem
+        fields = '__all__'
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
+    order_items = OrderItemSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
