@@ -119,3 +119,24 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address', {})
+        order_items_data = validated_data.pop('order_items', [])
+
+        address_serializer = AddressSerializer(data=address_data)
+        address_serializer.is_valid(raise_exception=True)
+        address_instance = address_serializer.save()
+
+        order_items_instances = []
+        for item_data in order_items_data:
+            order_item_serializer = OrderItemSerializer(data=item_data)
+            order_item_serializer.is_valid(raise_exception=True)
+            order_item_instance = order_item_serializer.save()
+            order_items_instances.append(order_item_instance)
+
+        validated_data['user_profile'] = validated_data['user_profile'].id
+        print(validated_data)
+        order = Order.objects.create(address=address_instance, **validated_data)
+        order.order_items.set(order_items_instances)
+        return order

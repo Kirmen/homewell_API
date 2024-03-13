@@ -115,6 +115,7 @@ class UserProfile(models.Model):
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    # order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
 
     def total_price(self):
         return self.product.price * self.quantity
@@ -139,6 +140,7 @@ class Order(models.Model):
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     order_items = models.ManyToManyField(OrderItem, related_name='ordered_items')
+    # можливо видалити тут айтемс і в серіалізаторі іх
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
@@ -155,13 +157,11 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         # if not self.id:
-        #     # Якщо це новий об'єкт, зберегти його для отримання ідентифікатора
         #     for item in self.order_items.all():
         #         item.product.quantity -= item.quantity
         #         item.product.save()
         #     super(Order, self).save(*args, **kwargs)
 
-        # Оновити total_amount після збереження в базу даних
         self.total_amount = sum(item.total_price() for item in self.order_items.all())
 
         super(Order, self).save(*args, **kwargs)
